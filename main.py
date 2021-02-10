@@ -47,45 +47,63 @@ def create_fasta_list(file_name):
 
 
 # Takes a list of FastaObj objects and returns the longest common substring.
-def find_lcs(input_list):
-    lcs = ""
-    # Go through each DNA sequence in the list.
-    for line in range(len(input_list)):
-        fasta = input_list[line]
-        sequence = fasta.get_seq()
-        seq_length = len(sequence)
-        # Iterate through all possible substrings.
-        for index1 in range(seq_length+1):
-            for index2 in range(index1, seq_length):
-                test_seq = sequence[index1:index2+1]
-                print(test_seq)
-                # print(f"index1 is {index1}, index2+1 is {index2+1}")
-                matches_all_lines = False
+def find_substrings(input_list):
+    common_substrings = []
 
-                # Iterate through all other DNA sequences in the list and see if the current substring is found in all
-                # of them.
-                for test_line in range(line+1, len(input_list)):
-                    comp_fasta = input_list[test_line]
-                    comp_seq = comp_fasta.get_seq()
-                    # print(test_seq, comp_seq, lcs)
-                    x = re.search(test_seq, comp_seq)
-                    # print(x)
-                    if x is not None:
-                        # print(test_seq, comp_seq)
-                        matches_all_lines = True
+    # Check if the first and second sequence share any substrings. If they don't we can return an null.
+    # If they do, we can check if any are shared with all the sequences in the list.
+
+    fasta1 = input_list[0]
+    fasta2 = input_list[1]
+
+    seq1 = fasta1.get_seq()
+    seq_length1 = len(seq1)
+
+    sequence2 = fasta2.get_seq()
+
+    # Iterate through all possible substrings of the first sequence in the list and check if it is found in the second.
+    for index1 in range(seq_length1):
+        for index2 in range(index1, seq_length1):
+            test_seq = seq1[index1:index2+1]
+
+            init_match = re.search(test_seq, sequence2)
+            if init_match:
+                add_to_list = False
+
+                # Check if substring is found in all other sequences and if so add to list of common substrings.
+                for sequence in range(len(input_list)):
+                    check_seq = input_list[sequence].get_seq()
+                    is_match = re.search(test_seq, check_seq)
+                    if is_match:
+                        add_to_list = True
                     else:
-                        matches_all_lines = False
+                        add_to_list = False
                         break
-                if matches_all_lines is True and len(test_seq) >= len(lcs):
-                    lcs = test_seq
-    return lcs
+                if add_to_list and len(test_seq) > 1:
+                    common_substrings.append(test_seq)
+            else:
+                break
+
+    return common_substrings
 
 
-fasta_list = create_fasta_list("sample_fasta.txt")
-# for line in fasta_list:
-# print(line.get_id(), line.get_seq())
-longest_common_substring = find_lcs(fasta_list)
-print(longest_common_substring)
-output = open("longest_common_substring.txt", "w")
-output.write(longest_common_substring)
-output.close()
+def find_list_maxlength(substring_list):
+    longest_substring = ""
+    longest_length = 0
+    for line in substring_list:
+        if len(line) > longest_length:
+            longest_substring = line
+            longest_length = len(line)
+
+    return longest_substring
+
+
+test_fasta_list = create_fasta_list("rosalind_lcsm.txt")
+test_ss_list = find_substrings(test_fasta_list)
+lcs = find_list_maxlength(test_ss_list)
+print(lcs)
+
+output_file = open("lcs.txt", "w")
+output_file.write(lcs)
+output_file.close()
+
