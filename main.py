@@ -1,6 +1,4 @@
 # This code is intended to find the longest DNA motif shared by a list of DNA sequences.
-# It technically works in its current form but the computational time required for anything more than a short list of
-# short sequences is unreasonable.
 
 import re
 
